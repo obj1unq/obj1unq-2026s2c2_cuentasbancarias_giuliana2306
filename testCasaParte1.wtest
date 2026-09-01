@@ -1,9 +1,39 @@
 import casa.*
 
 describe "casa de pepe y julian" {
-    
-  // Descomentar si hiciera falta un metodo para inicializar el ambiente
-  // method initialize() {
-  // }
-
+  method initialize() {
+      gastosDeMantenimiento.costoPorOperacion(20)
+      }
+  test "cuenta corriente" {
+    casa.deposito(300)
+    assert.equals(0, casa.montoTotalDeGastos())
+    casa.extraer(200)
+    assert.equals(100, casa.saldo())
+    assert.equals(200, casa.montoTotalDeGastos())
+    casa.extraer(400)
+    assert.equals(-300, casa.saldo())
+    assert.equals(600, casa.montoTotalDeGastos())
+    casa.cambioDeMes()
+    assert.equals(0, casa.montoTotalDeGastos())
+  }
+  test "Cuenta con gastos de mantenimiento: caso normal" {
+   
+    gastosDeMantenimiento.deposito(1000) 
+    assert.equals(980, gastosDeMantenimiento.saldo())
+    gastosDeMantenimiento.extraer(580)
+    assert.equals(400,gastosDeMantenimiento.saldo())
+    gastosDeMantenimiento.extraer(500)
+    assert.equals(-100,gastosDeMantenimiento.saldo())
+    gastosDeMantenimiento.deposito(150)
+    assert.equals(30, gastosDeMantenimiento.saldo())
+  }
+  test "Cuenta con gastos de mantenimiento: caso excepcional" {
+    gastosDeMantenimiento.extraer(30)
+    assert.equals(0, gastosDeMantenimiento.saldo())
+    gastosDeMantenimiento.deposito(10)
+    assert.equals(0, gastosDeMantenimiento.saldo())
+  }
 }
+
+//Cuenta con gastos de mantenimiento: caso excepcional
+//Para una cuenta vacía con 20 pesos de costo por operación, no se puede depositar 10 pesos. El saldo queda en 0.
