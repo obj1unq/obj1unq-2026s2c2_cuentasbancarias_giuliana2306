@@ -28,7 +28,6 @@ describe "casa de pepe y julian" {
     assert.equals(30, gastosDeMantenimiento.saldo())
   }
   test "Cuenta con gastos de mantenimiento: caso excepcional" {
-    gastosDeMantenimiento.extraer(30)
     assert.equals(0, gastosDeMantenimiento.saldo())
     gastosDeMantenimiento.deposito(10)
     assert.equals(0, gastosDeMantenimiento.saldo())

@@ -1,0 +1,12 @@
+import casa.*
+
+describe "casa de pepe y julian" {
+
+    test "Saldos cuenta combinada" {
+        cuentaCorriente.deposito(200)
+        gastosDeMantenimiento.deposito(50)
+        assert.equals(250,cuentaCombinada.saldo()) 
+        gastosDeMantenimiento.deposito(-50)
+        assert.equals(200,cuentaCombinada.saldo()) 
+    }
+}
