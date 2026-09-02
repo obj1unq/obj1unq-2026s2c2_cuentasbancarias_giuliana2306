@@ -5,9 +5,7 @@ object casa {
     var montoDeReparaciones = 0
     var estrategia = 
 
-    method deposito(_saldo) {
-        cuenta.deposito(_saldo) 
-    }
+    
     method extraer(_saldo) {
         cuenta.extraer(_saldo)
         montoTotalDeGastos = montoTotalDeGastos + _saldo
@@ -77,7 +75,7 @@ object gastosDeMantenimiento {
             self.error("No se puede depositar" + _saldo)
         }
     }
-    // pero no permite un depósito de un monto menor o igual al costo de operación.
+// pero no permite un depósito de un monto menor o igual al costo de operación.
     method extraer(_saldo) {
         saldo = saldo - _saldo
     }
@@ -99,17 +97,19 @@ object cuentaCombinada {
     method deposito(_saldo) {
         cuentaPrimaria.deposito(_saldo)
     }
-    method extraer(_saldo) {
-       if (self.saldo() < _saldo) {
-        self.error("No se puede extraer saldo" + _saldo)
-       } else {
+    method extraer(_saldo) {  
+        self.validarExtraer(_saldo)
         if (cuentaPrimaria.saldo() > _saldo) {
             cuentaPrimaria.extraer(_saldo) 
         } else {
             cuentaSecundaria.extraer(0.max(cuentaSecundaria.saldo()))
             cuentaPrimaria.extraer(0.max(cuentaPrimaria.saldo()))
         }
-       }
+    }
+    method validarExtraer(_saldo) {
+        if (self.saldo() < _saldo) {
+            self. error("No se puede extraer saldo" + _saldo)
+        }
     }
     method saldo() {
         return 0.max(cuentaPrimaria.saldo()) + 0.max(cuentaSecundaria.saldo())

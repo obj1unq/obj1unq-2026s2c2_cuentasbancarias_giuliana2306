@@ -5,7 +5,7 @@ describe "casa de pepe y julian" {
       gastosDeMantenimiento.costoPorOperacion(20)
       }
   test "cuenta corriente" {
-    casa.deposito(300)
+    cuenta.deposito(300)
     assert.equals(0, casa.montoTotalDeGastos())
     casa.extraer(200)
     assert.equals(100, casa.saldo())
