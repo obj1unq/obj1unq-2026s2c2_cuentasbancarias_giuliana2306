@@ -1,12 +1,27 @@
 import casa.*
 
-describe "casa de pepe y julian" {
+describe "casa de Pepe, Julian y sus estrategias de mantenimiento" {
 
-    test "Saldos cuenta combinada" {
-        cuentaCorriente.deposito(200)
-        gastosDeMantenimiento.deposito(50)
-        assert.equals(250,cuentaCombinada.saldo()) 
-        gastosDeMantenimiento.deposito(-50)
-        assert.equals(200,cuentaCombinada.saldo()) 
+   
+
+    method initialize() {
+        casa.cantidadDeViveres(30)
+        casa.seRompio(100)
+        cuentaDeGastosDeMantenimiento.costoDeOperacion(20)
+        casa.cambiarCuenta(cuentaCombinada)
+        minimoEIndispensable.calidad(3)
+    }
+    test "Probando Estrategia Minimo indispensable" {
+        
     }
 }
+
+/*
+Al cambiar de mes y ejecutar el mantenimiento, no hay saldo 
+suficiente para comprar los víveres, por lo que no se puede realizar.
+Se deposita 100 pesos en la cuenta combinada
+ahora si se puede ejecutar el cambio de mes
+Verificar que la casa queda con 40% de víveres, 
+se mantiene los 100 pesos para reparaciones, el gasto del mes 
+es 0 y el saldo de la cuenta combinada es 50
+*/

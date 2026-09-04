@@ -1,121 +1,164 @@
 object casa {
-    const cuenta = cuentaCorriente
+    var cuenta = cuentaCorriente
     var montoTotalDeGastos = 0
     var viveres = 0
-    var montoDeReparaciones = 0
-    var estrategia = 
+    var reparaciones = 0
+    var montoDeReparacion = 0
+    var estrategia = minimoEIndispensable
 
-    method deposito(_saldo) {
-        cuenta.deposito(_saldo) 
+     
+    method gasto(_gasto) {
+        cuenta.extraer(_gasto)
+        montoTotalDeGastos = montoTotalDeGastos + _gasto
     }
-    method extraer(_saldo) {
-        cuenta.extraer(_saldo)
-        montoTotalDeGastos = montoTotalDeGastos + _saldo
-    }
-    method montoTotalDeGastos() {
-       return montoTotalDeGastos
+    method alcanzaParaPagarReparacion() {
+        return cuenta.saldo()  >= montoDeReparacion
     }
     method cambioDeMes() {
         montoTotalDeGastos = 0
+        estrategia.aplicarEstrategiaDeAhorro()
     }
-    method saldo() {
-       return cuenta.saldo()
+    method montoTotalDeGastos() {
+        return montoTotalDeGastos
     }
-    method viveres(porcentajeAComprar, calidad) {
-        if (porcentajeAComprar + viveres > 100) {
-            self.error("Supera el 100% de los viveres de la casa")
-        } else {
-          viveres = viveres + porcentajeAComprar 
-          cuenta.extraer(porcentajeAComprar * calidad)
+    method cambiarCuenta(_cuenta) {
+        cuenta = _cuenta
+    }
+    method comprar(porcentajeDeViveres, calidad) {
+        self.validarComprar(porcentajeDeViveres, calidad)
+        viveres = viveres + porcentajeDeViveres 
+        self.gasto(porcentajeDeViveres * calidad)
+    }
+    method validarComprar(porcentajeDeViveres, calidad) {
+        if (viveres + porcentajeDeViveres > 100) {
+            self.error("No se puede comprar el porcentaje de viveres" + porcentajeDeViveres)
         }
     }
-    method registrarReparacion(_montoDeReparaciones) {
-        montoDeReparaciones = montoDeReparaciones + _montoDeReparaciones
-    }
-    method montoDeReparaciones() {
-        return montoDeReparaciones
-    }
-    method repararCosas() {
-        cuenta.extraer(montoDeReparaciones) 
-        montoDeReparaciones = 0
-    }
     method tieneViveresSuficientes() {
-        return viveres >= 40
+        return viveres  >= 40
     }
-    method hayQueRealizarReparaciones() {
-        return montoDeReparaciones  > 0
+    method cantidadDeViveres(porcentajeDeViveres) {
+        viveres = porcentajeDeViveres
+    }
+    method realizarReparacion() {
+        self.gasto(montoDeReparacion)
+        montoDeReparacion = 0
+        reparaciones = reparaciones - 1
+    }
+    method seRompio(_montoDeReparacion) {
+        montoDeReparacion = montoDeReparacion + _montoDeReparacion
+        reparaciones = reparaciones + 1    
+    }
+    method hayQueHacerReparaciones() {
+        return reparaciones > 0
     }
     method estaEnOrden() {
-        return tieneViveresSuficientes() && not hayQueRealizarReparaciones()
+        return not self.hayQueHacerReparaciones() && self.tieneViveresSuficientes()
+    }
+    method cantidadDeViveres() {
+        return viveres
+    }
+    method estrategia(_estrategia) {
+        return _estrategia
     }
 }
 
 object cuentaCorriente {
     var saldo = 0
 
-    method deposito(_saldo) {
+    method saldo() {
+        return saldo
+    }
+    method depositar(_saldo) {
         saldo = saldo + _saldo
     }
     method extraer(_saldo) {
         saldo = saldo - _saldo
     }
-    method saldo() {
-        return saldo
-    }
 }
 
-object gastosDeMantenimiento { 
+object cuentaDeGastosDeMantenimiento {
     var saldo = 0
-    var costoPorOperacion = 0
+    var costoDeOperacion = 0
 
-    method deposito(_saldo) {
-            self.validarDeposito(_saldo)
-            saldo = saldo + _saldo - costoPorOperacion
+    method depositar(_saldo) {
+        self.validarDepositar(_saldo)
+        saldo = saldo + _saldo - costoDeOperacion
     }
-    method validarDeposito(_saldo) {
-        if (_saldo <= costoPorOperacion) {
-            self.error("No se puede depositar" + _saldo)
+    method validarDepositar(_saldo) {
+        if (_saldo <= costoDeOperacion) {
+            self.error("No se permite un deposito de monto" + _saldo)
         }
     }
-    // pero no permite un depósito de un monto menor o igual al costo de operación.
     method extraer(_saldo) {
         saldo = saldo - _saldo
     }
     method saldo() {
         return saldo
     }
-    method costoPorOperacion(_costoPorOperacion) {
-        costoPorOperacion = _costoPorOperacion
+    method costoDeOperacion(_costoDeOperacion) {
+        costoDeOperacion = _costoDeOperacion
     }
-    method costoPorOperacion() {
-    return costoPorOperacion
-}
 }
 
 object cuentaCombinada {
-    const cuentaPrimaria = cuentaCorriente
-    const cuentaSecundaria = gastosDeMantenimiento
+    var cuentaPrimaria =  cuentaDeGastosDeMantenimiento
+    var cuentaSecundaria = cuentaCorriente
+    var saldoRestanteAExtraer = 0
 
-    method deposito(_saldo) {
-        cuentaPrimaria.deposito(_saldo)
+    method depositar(_saldo) {
+        cuentaDeGastosDeMantenimiento.depositar(_saldo)
     }
-    method extraer(_saldo) {
-       if (self.saldo() < _saldo) {
-        self.error("No se puede extraer saldo" + _saldo)
-       } else {
-        if (cuentaPrimaria.saldo() > _saldo) {
-            cuentaPrimaria.extraer(_saldo) 
-        } else {
-            cuentaSecundaria.extraer(0.max(cuentaSecundaria.saldo()))
-            cuentaPrimaria.extraer(0.max(cuentaPrimaria.saldo()))
-        }
-       }
-    }
-    method saldo() {
+    method saldoDeCuentaCombinada() {
         return 0.max(cuentaPrimaria.saldo()) + 0.max(cuentaSecundaria.saldo())
     }
+    method extraer(_saldo) {
+        self. validarExtraer (_saldo)
+        if ((0.max(cuentaPrimaria.saldo()) >= _saldo)) {
+            cuentaPrimaria.extraer (_saldo)
+        } else {
+            saldoRestanteAExtraer = _saldo - 0.max(cuentaPrimaria.saldo())
+            cuentaPrimaria.extraer(0.max(cuentaPrimaria.saldo()))
+            cuentaSecundaria.extraer(0.max(saldoRestanteAExtraer))
+        }
+    }
+    method validarExtraer (_saldo) {
+        if (self.saldoDeCuentaCombinada() < _saldo) {
+            self.error("No se puede realizar extracción de" + _saldo)
+        }
+    }
 }
- object minimoEIndispensable() {
-    
- }
 
+object minimoEIndispensable {
+    var calidad = 0
+
+    method aplicarEstrategiaDeAhorro() {
+        if (not casa.tieneViveresSuficientes()) {
+            casa.comprar(40 - casa.cantidadDeViveres(), calidad)
+        }
+    }
+    method calidad(_calidad) {
+        calidad = _calidad
+    }
+
+}
+
+object full {
+    var calidad = 5
+
+    method aplicarEstrategiaDeAhorro() {
+        if (casa.estaEnOrden()) {
+            if (casa.cantidadDeViveres() < 100) {
+                casa.comprar(100 - casa.cantidadDeViveres(), calidad)
+            }
+        } else {
+            if (not casa.tieneViveresSuficientes()) {
+                casa.comprar(40 - casa.cantidadDeViveres(), calidad)
+            }
+
+            if (casa.hayQueHacerReparaciones() && casa.alcanzaParaPagarReparacion()) {
+                casa.realizarReparacion()
+            }
+}
+}
+}
