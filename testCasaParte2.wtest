@@ -1,0 +1,58 @@
+import casa.*
+
+describe "casa de Pepe, Julian y su estrategia de minimo indispensable" {
+
+    method initialize() {
+        casa.cambiarCantidadDeViveres(30)
+        casa.seRompio(100)
+        cuentaDeGastosDeMantenimiento.costoDeOperacion(20)
+        casa.cambiarCuenta(cuentaCombinada)
+        minimoEIndispensable.calidad(3)
+    }
+
+    test "Probando Estrategia Minimo indispensable" {
+         assert.throwsException({casa.cambioDeMes()})
+         cuentaCombinada.depositar(100)
+         casa.cambioDeMes()
+         assert.equals(40, casa.viveres())
+         assert.equals(100, casa.montoDeReparacion())
+         assert.equals(0, casa.montoTotalDeGastos())
+         assert.equals(50, cuentaCombinada.saldo())
+    }
+}
+
+describe "casa de Pepe, Julian y su estrategia full" {
+
+method initialize() {
+    casa.cambiarCantidadDeViveres(30)
+    casa.seRompio(100)
+    casa.cambiarCuenta(cuentaCorriente)
+    casa.estrategia(full)
+}
+
+test "Probando Estrategia Full" {
+    casa.cambioDeMes()
+
+    assert.equals(40, casa.viveres())
+    assert.equals(-50, cuentaCorriente.saldo())
+    assert.equals(100, casa.montoDeReparacion())
+
+    cuentaCorriente.depositar(450)
+
+    casa.cambioDeMes()
+
+    assert.equals(40, casa.viveres())
+    assert.equals(300, cuentaCorriente.saldo())
+    assert.equals(0, casa.reparaciones())
+
+    casa.cambioDeMes()
+
+    assert.equals(100, casa.viveres())
+    assert.equals(0, cuentaCorriente.saldo())
+
+    casa.cambioDeMes()
+
+    assert.equals(100, casa.viveres())
+    assert.equals(0, cuentaCorriente.saldo())
+}
+}
